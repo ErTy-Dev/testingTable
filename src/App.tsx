@@ -1,4 +1,4 @@
-import { Box, CssBaseline, IconButton, ThemeProvider } from '@mui/material';
+import { Box, CircularProgress, CssBaseline, IconButton, ThemeProvider } from '@mui/material';
 import { createTheme } from '@mui/material';
 import { DarkMode, LightMode } from '@mui/icons-material';
 import { useEffect, useMemo, useState } from 'react';
@@ -29,6 +29,7 @@ export interface Rating {
 
 function App() {
 	const [themeMode, setThemeMode] = useState<'light' | 'dark'>(() => (localStorage.getItem('themeMode') as 'light' | 'dark') || 'light');
+	const [loading, setLoading] = useState(false);
 	const toggleTheme = () => {
 		const newThemeMode = themeMode === 'light' ? 'dark' : 'light';
 		setThemeMode(newThemeMode);
@@ -38,6 +39,7 @@ function App() {
 
 	useEffect(() => {
 		(async function () {
+			setLoading(true);
 			const response = await fetch('https://fakestoreapi.com/products/');
 			const data = await response.json();
 			setRows(
@@ -49,6 +51,7 @@ function App() {
 					number: item.rating.rate,
 				}))
 			);
+			setLoading(false);
 		})();
 	}, []);
 
@@ -61,6 +64,12 @@ function App() {
 			}),
 		[themeMode]
 	);
+	if (loading)
+		return (
+			<Box display='flex' justifyContent='center'>
+				<CircularProgress />
+			</Box>
+		);
 	return (
 		<ThemeProvider theme={theme}>
 			<Box
